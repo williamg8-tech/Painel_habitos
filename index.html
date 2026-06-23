@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Painel de Hábitos - Mobile Protocol</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#060913">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <style>
+        :root {
+            --bg-color: #060913;
+            --card-bg: #0d1527;
+            --text-color: #e2e8f0;
+            --primary-color: #00f0ff; /* Azul Neon */
+            --accent-color: #ff0055;  /* Vermelho/Rosa Neon */
+            --danger-color: #ff3c3c;
+            --gray-color: #64748b;
+        }
+
+        /* Reset para Mobile (evita zoom e rolagem lateral esquisita) */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, #111a33 0%, #060913 100%);
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin: 10px 0 4px 0;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+            text-align: center;
+        }
+
+        p.subtitle {
+            color: var(--gray-color);
+            margin: 0 0 20px 0;
+            text-align: center;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        /* Formulário Ajustado para Telas de Toque */
+        .input-container {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 12px;
+            background: #03060d;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            color: var(--primary-color);
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-container button {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 0 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        /* Feedback imediato ao toque no celular */
+        .input-container button:active {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        /* Grid em coluna única para Celular */
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 450px;
+            padding-bottom: 30px; /* Espaço no fim da tela */
+        }
+
+        /* Cartão de Hábito Versão App */
+        .habit-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #1e293b;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-right: 28px;
+        }
+
+        .habit-title {
+            font-size: 1.05rem;
+            font-weight: bold;
+            word-break: break-word;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .habit-count {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-shadow: 0 0 8px rgba(255, 0, 85, 0.3);
+        }
+
+        .progress-container {
+            background-color: #03060d;
+            border-radius: 4px;
+            height: 8px;
+            width: 100%;
+            margin-bottom: 8px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            height: 100%;
+            width: 0%;
+            box-shadow: 0 0 6px var(--primary-color);
+        }
+
+        .meta-text {
+            font-size: 0.7rem;
+            color: var(--gray-color);
+            margin-bottom: 16px;
+            text-align: right;
+        }
+
+        /* Histórico Otimizado para Scroll no Dedo */
+        .history-section {
+            background: #03060d;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 16px;
+            max-height: 140px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            display: none;
+            border: 1px solid #1e293b;
+            /* Suaviza a rolagem no ecra tátil do iOS */
+            -webkit-overflow-scrolling: touch; 
+        }
+
+        .history-section strong {
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0; /* Área de toque maior para deletar log */
+            border-bottom: 1px solid #1e293b;
+            color: #94a3b8;
+        }
+        .history-item:last-child { border-bottom: none; }
+
+        .delete-log {
+            color: var(--danger-color);
+            padding: 4px 8px;
+            font-size: 1.1rem;
+        }
+
+        /* Botões de Ação Grandes (fáceis de clicar com o dedão) */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            padding: 14px; /* Mais alto para facilitar o clique */
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+
+        .btn-add {
+            flex: 2;
+            background-color: transparent;
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        .btn-add:active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-history {
+            flex: 1;
+            background-color: transparent;
+            color: var(--gray-color);
+            border-color: var(--gray-color);
+        }
+        .btn-history:active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Botão X de deletar card principal */
+        .btn-delete {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--gray-color);
+            font-size: 1.4rem;
+            padding: 4px;
+        }
+        .btn-delete:active {
+            color: var(--danger-color);
+        }
+
+        /* Customização da barra de rolagem interna */
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+    <h1>Painel de Hábitos</h1>
+    <p class="subtitle">[ MOBILE PROTOCOL V2 ]</p>
+
+    <div class="input-container">
+        <input type="text" id="habitInput" placeholder="NOVO HÁBITO..." maxlength="40">
+        <button onclick="adicionarHabito()">+</button>
+    </div>
+
+    <div class="dashboard" id="dashboard"></div>
+
+    <script>
+        const totalDiasAno = 365;
+        let meusHabitos = JSON.parse(localStorage.getItem('habitosComDatas')) || [];
+
+        const dashboard = document.getElementById('dashboard');
+        const habitInput = document.getElementById('habitInput');
+
+        habitInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') adicionarHabito(); });
+
+        function adicionarHabito() {
+            const nomeHabito = habitInput.value.trim();
+            if (nomeHabito === "") return alert("Digite o nome de um hábito!");
+
+            const novoId = 'habit_' + Date.now();
+
+            meusHabitos.push({
+                id: novoId,
+                nome: nomeHabito,
+                historico: [] 
+            });
+
+            habitInput.value = "";
+            document.activeElement.blur(); // Esconde o teclado do celular após adicionar
+            salvarEAtualizar();
+        }
+
+        function registrarEvento(id) {
+            const habito = meusHabitos.find(h => h.id === id);
+            if (habito) {
+                const agora = new Date();
+                const dataFormatada = agora.toLocaleDateString('pt-BR');
+                const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                habito.historico.unshift({ data: dataFormatada, hora: horaFormatada });
+                salvarEAtualizar();
+            }
+        }
+
+        function removerUltimoEvento(id, index) {
+            const habito = meusHabitos.find(h => h.id === id);
+            if (habito) {
+                habito.historico.splice(index, 1);
+                salvarEAtualizar();
+            }
+        }
+
+        function deletarHabito(id) {
+            if (confirm("Deseja apagar este hábito e todo o histórico dele?")) {
+                meusHabitos = meusHabitos.filter(h => h.id !== id);
+                salvarEAtualizar();
+            }
+        }
+
+        function alternarHistorico(id) {
+            const painelHistorico = document.getElementById(`hist-${id}`);
+            painelHistorico.style.display = (painelHistorico.style.display === "block") ? "none" : "block";
+        }
+
+        function salvarEAtualizar() {
+            localStorage.setItem('habitosComDatas', JSON.stringify(meusHabitos));
+            renderizarPainel();
+        }
+
+        function renderizarPainel() {
+            dashboard.innerHTML = '';
+            
+            if (meusHabitos.length === 0) {
+                dashboard.innerHTML = `<p style="text-align: center; color: var(--gray-color); font-style: italic; font-size:0.85rem; margin-top:20px;">NENHUM PROTOCOLO ATIVO.</p>`;
+                return;
+            }
+
+            meusHabitos.forEach(habit => {
+                const totalRegistros = habit.historico.length;
+                const porcentagem = Math.min(((totalRegistros / totalDiasAno) * 100), 100).toFixed(1);
+
+                let historicoHTML = '';
+                if(habit.historico.length === 0) {
+                    historicoHTML = '<span style="color: var(--gray-color); font-style:italic; font-size:0.75rem;">Nenhum registro.</span>';
+                } else {
+                    habit.historico.forEach((item, index) => {
+                        historicoHTML += `
+                            <div class="history-item">
+                                <span>⚡ ${item.data} às ${item.hora}</span>
+                                <span class="delete-log" onclick="removerUltimoEvento('${habit.id}', ${index})">&times;</span>
+                            </div>`;
+                    });
+                }
+
+                const card = document.createElement('div');
+                card.className = 'habit-card';
+                card.innerHTML = `
+                    <button class="btn-delete" onclick="deletarHabito('${habit.id}')">&times;</button>
+                    <div>
+                        <div class="habit-header">
+                            <span class="habit-title">${habit.nome}</span>
+                            <span class="habit-count">${totalRegistros}</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${porcentagem}%"></div>
+                        </div>
+                        <div class="meta-text">${porcentagem}% DO CICLO</div>
+                        
+                        <div class="history-section" id="hist-${habit.id}">
+                            <strong>LOG DE REGISTROS:</strong>
+                            <div style="margin-top: 5px;">${historicoHTML}</div>
+                        </div>
+                    </div>
+                    <div class="btn-container">
+                        <button class="btn-action btn-history" onclick="alternarHistorico('${habit.id}')">Histórico</button>
+                        <button class="btn-action btn-add" onclick="registrarEvento('${habit.id}')">Registrar</button>
+                    </div>
+                `;
+                dashboard.appendChild(card);
+            });
+        }
+
+        renderizarPainel();
+
+        // --- REGISTRO DO SERVICE WORKER PARA PWA ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker ativo com sucesso!', reg.scope))
+                    .catch(err => console.log('Falha ao registrar o Service Worker:', err));
+            });
+        }
+    </script>
+</body>
+</html>
