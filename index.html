@@ -213,6 +213,7 @@
         /* Botões de Ação Grandes (fáceis de clicar com o dedão) */
         .btn-container {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
         }
 
@@ -242,10 +243,25 @@
             background-color: transparent;
             color: var(--gray-color);
             border-color: var(--gray-color);
+            min-width: 90px;
         }
         .btn-history:active {
             border-color: var(--primary-color);
             color: var(--primary-color);
+        }
+
+        /* Estilização para o input de Data dentro do Card */
+        .input-date-picker {
+            flex: 1;
+            background: #03060d;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            color: var(--primary-color);
+            padding: 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            min-width: 130px;
         }
 
         /* Botão X de deletar card principal */
@@ -309,7 +325,16 @@
         function registrarEvento(id) {
             const habito = meusHabitos.find(h => h.id === id);
             if (habito) {
-                const agora = new Date();
+                const datePicker = document.getElementById(`date-${id}`);
+                let agora = new Date();
+                
+                // Se o usuário selecionou uma data específica no input
+                if (datePicker && datePicker.value) {
+                    // Adiciona a hora atual na data escolhida pelo input
+                    const [ano, mes, dia] = datePicker.value.split('-');
+                    agora = new Date(ano, mes - 1, dia, agora.getHours(), agora.getMinutes());
+                }
+
                 const dataFormatada = agora.toLocaleDateString('pt-BR');
                 const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
@@ -368,6 +393,9 @@
                     });
                 }
 
+                // Define a data atual padrão em formato YYYY-MM-DD para o input mobile
+                const hoje = new Date().toISOString().split('T')[0];
+
                 const card = document.createElement('div');
                 card.className = 'habit-card';
                 card.innerHTML = `
@@ -389,6 +417,7 @@
                     </div>
                     <div class="btn-container">
                         <button class="btn-action btn-history" onclick="alternarHistorico('${habit.id}')">Histórico</button>
+                        <input type="date" id="date-${habit.id}" class="input-date-picker" value="${hoje}">
                         <button class="btn-action btn-add" onclick="registrarEvento('${habit.id}')">Registrar</button>
                     </div>
                 `;
